@@ -13,4 +13,4 @@
 и даны необходимые комментарии.
 
 ## Демонстрация работы программы
-![image](https://github.com/Dmitry-Pr/Homework_course2/assets/61019019/a76e6987-a748-45a2-bdab-7d3ec261c483)
+![image](https://github.com/Dmitry-Pr/Homework_course2/assets/61019019/0fd86758-2fbf-43a1-8361-b7c9f7256c66)
