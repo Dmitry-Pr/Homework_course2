@@ -29,7 +29,7 @@ private:
 BloomFilter::BloomFilter(size_t hashes, size_t bits) {
     hashFuncN = hashes;
     bitsN = bits;
-    filter = new std::vector<bool>(bitsN * hashFuncN, false);
+    filter = new std::vector<bool>(bitsN, false);
     stringStorage = new std::unordered_set<std::string>();
 }
 
@@ -47,7 +47,7 @@ void BloomFilter::add(const std::string &obj) {
     (*filter)[h % bitsN] = true;
     for (size_t i = 1; i < hashFuncN; i++) {
         h = std::hash<std::string>{}(obj + std::to_string(i));
-        (*filter)[i * bitsN + h % bitsN] = true;
+        (*filter)[h % bitsN] = true;
     }
 }
 
@@ -61,7 +61,7 @@ bool BloomFilter::verify(const std::string &obj) {
     flag &= (*filter)[h % bitsN];
     for (size_t i = 1; i < hashFuncN && flag; i++) {
         h = std::hash<std::string>{}(obj + std::to_string(i));
-        flag &= (*filter)[i * bitsN + h % bitsN];
+        flag &= (*filter)[h % bitsN];
     }
     if (flag && (*stringStorage).count(obj) == 0) {
         FPCount++;
