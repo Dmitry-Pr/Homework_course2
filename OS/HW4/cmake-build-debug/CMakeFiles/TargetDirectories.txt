@@ -1,3 +1,0 @@
-/home/dima/Homework_course2/OS/HW4/cmake-build-debug/CMakeFiles/HW4.dir
-/home/dima/Homework_course2/OS/HW4/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/dima/Homework_course2/OS/HW4/cmake-build-debug/CMakeFiles/rebuild_cache.dir
