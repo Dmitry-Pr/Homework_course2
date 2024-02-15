@@ -12,7 +12,7 @@ const int size = 32;
 
 int conv(std::string s) {
     int res = 0;
-    for (int i = 0; i < (int)s.size(); ++i) {
+    for (int i = 0; i < (int) s.size(); ++i) {
         res *= 8;
         res += (s[i] - '0');
     }
@@ -52,8 +52,8 @@ int main(int argc, char *argv[]) {
     if (rval == 0) {
         flag += 111;
     }
-    std::cout << flag;
-    if ((fd_out = open(out, O_RDWR | O_CREAT, conv(std::to_string(flag)))) < 0) {
+    std::cout << flag << '\n';
+    if ((fd_out = open(out, O_WRONLY | O_RDONLY | O_RDWR | O_EXCL | O_CREAT, conv(std::to_string(flag)))) < 0) {
         printf("Can\'t open file to write\n");
         exit(-1);
     }
