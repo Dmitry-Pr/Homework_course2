@@ -7,12 +7,25 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/person_name"
+        style="@style/TextColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Мухин Дмитрий Владимирович БПИ228"
+        android:text="@string/person"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/theme_switcher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:theme="@style/AppTheme"
+        android:thumb="@drawable/thumb"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:track="@drawable/track" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

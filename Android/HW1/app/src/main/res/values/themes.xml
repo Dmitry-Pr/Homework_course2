@@ -2,8 +2,13 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.HW1" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+         <item name="colorPrimary">@color/colorAccent</item>
+         <item name="colorPrimaryVariant">@color/colorAccent</item>
     </style>
-
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <!-- Customize the track color of SwitchCompat -->
+        <item name="colorControlNormal">#FFFFFF</item>
+    </style>
+    <style name="TextColor"><item name="android:textColor">@color/black</item></style>
     <style name="Theme.HW1" parent="Base.Theme.HW1" />
 </resources>
