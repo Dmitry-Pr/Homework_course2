@@ -2,6 +2,10 @@
     <string name="app_name">HW3</string>
     <string name="person">Мухин Дмитрий Владимирович БПИ228</string>
     <string name="input_hint">Введите текст</string>
-    <string name="input_button">Подтвердить</string>
-    <string name="output_hint">Текст выведется сюда</string>
+    <string name="second_activity_button">Перейти на второй экран</string>
+    <string name="main_activity_button">Перейти на главный экран</string>
+    <string name="main_activity_text">Главный экран</string>
+    <string name="second_activity_text">Второй экран</string>
+    <string name="output_hint">На главном экране вы напечатали:</string>
+    <string name="output_text">Текст выведется сюда</string>
 </resources>

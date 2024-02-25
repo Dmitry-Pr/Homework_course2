@@ -5,18 +5,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.widget.Button;
+import android.view.View;
+
 import android.widget.EditText;
-import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity {
     private SwitchCompat theme_switcher;
-    private Button output_button;
-    private EditText input_field;
-    private TextView output_field;
+    private EditText inputField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,31 +43,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        output_button = findViewById(R.id.output_button);
-        input_field = findViewById(R.id.input_field);
-        output_field = findViewById(R.id.output_field);
-
-
-        String current_text = getString(R.string.output_hint);
-        if(savedInstanceState != null) {
-            String savedText = savedInstanceState.getString("current_text");
-            if(savedText != null) {
-                current_text = savedText;
-            }
+        inputField = findViewById(R.id.input_field);
+        Intent intent = getIntent();
+        if (intent.hasExtra("userInput")) {
+            String userInput = intent.getStringExtra("userInput");
+            inputField.setText(userInput);
         }
-        output_field.setText(current_text);
-        output_button.setOnClickListener(v -> {
-            String text = input_field.getText().toString();
-            if (text.isEmpty()) {
-                text = getString(R.string.output_hint);
-            }
-            output_field.setText(text);
-        });
+
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("current_text", output_field.getText().toString());
+    public void startSecondActivity(View v) {
+        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+        String userInput = inputField.getText().toString();
+        intent.putExtra("userInput", userInput);
+        startActivity(intent);
     }
 }
