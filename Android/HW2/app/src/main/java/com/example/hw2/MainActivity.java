@@ -34,10 +34,8 @@ public class MainActivity extends AppCompatActivity {
                 theme_switcher.setChecked(true);
                 break;
         }
-        theme_switcher.setOnClickListener(v -> {
-            boolean checked = theme_switcher.isChecked();
-
-            if (checked) {
+        theme_switcher.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);

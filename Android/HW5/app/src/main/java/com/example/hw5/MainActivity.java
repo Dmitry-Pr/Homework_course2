@@ -7,7 +7,6 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.widget.CompoundButton;
 
 
 public class MainActivity extends AppCompatActivity {
