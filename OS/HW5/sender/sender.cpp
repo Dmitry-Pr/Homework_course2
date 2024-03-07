@@ -1,44 +1,46 @@
-#include <stdio.h>
-#include <signal.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <iostream>
+#include <signal.h>
+#include <sys/types.h>
+#include <bitset>
 
-volatile int bit = 0;
-volatile int bit_received = 0;
+bool ready = 0;
 
-void sigusr1_handler(int signo) {
-    bit_received = 1;
+void handler(int signum) {
+    if (signum == SIGUSR1) {
+        ready = true;
+    } else if (signum == SIGUSR2) {
+        std::cout << "Ошибка при передаче бита" << std::endl;
+        exit(1);
+    }
 }
 
-
 int main() {
-    pid_t receiver_pid;
+    signal(SIGUSR1, handler);
+    signal(SIGUSR2, handler);
+    std::cout << getpid() << std::endl;
+    pid_t pid_receiver;
+    std::cout << "Введите PID приемника: ";
+    std::cin >> pid_receiver;
 
-    std::cout << "PID отправителя: " << getpid() << std::endl;
-    std::cout << "Введите PID получателя: ";
-    std::cin >> receiver_pid;
+    int number;
+    std::cout << "Введите число: ";
+    std::cin >> number;
 
-    (void)signal(SIGUSR1, sigusr1_handler);
-
-
-    int data;
-    printf("Введите целое число: ");
-    std::cin >> data;
-    for (int i = 7; i >= 0; i--) {
-        if ((data >> i) & 1) {
-            kill(receiver_pid, SIGUSR1);
-            std::cout << 1;
-        } else {
-            kill(receiver_pid, SIGUSR2);
+    std::string binary_number = std::bitset<32>(number).to_string();
+    for (char bit: binary_number) {
+        if (bit == '0') {
             std::cout << 0;
+            kill(pid_receiver, SIGUSR1);
+        } else {
+            std::cout << 1;
+            kill(pid_receiver, SIGUSR2);
         }
-        while (!bit_received);
-        bit_received = 0;
+        
+        while (!ready);
+        ready = false;
     }
-    kill(receiver_pid, SIGINT);
     std::cout << std::endl;
-    std::cout << "Отправка завершена";
+    std::cout << "Все биты успешно переданы" << std::endl;
 
     return 0;
 }

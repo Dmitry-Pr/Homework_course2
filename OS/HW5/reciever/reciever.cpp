@@ -1,45 +1,43 @@
-#include <stdio.h>
-#include <signal.h>
-#include <unistd.h>
 #include <iostream>
+#include <signal.h>
+#include <sys/types.h>
 
-volatile int bit = 0;
+std::string received_bits;
+std::string bit = "";
+pid_t pid_transmitter;
 
-void sigusr1_handler(int signo) {
-    bit = (bit << 1) | 1;
-    std::cout << 1;
-    kill(getppid(), SIGUSR1);
-
-}
-
-void sigusr2_handler(int signo) {
-    bit = bit << 1;
-    std::cout << 0;
-    kill(getppid(), SIGUSR1);  // Acknowledge the sender
-
-}
-
-void sigint_handler(int signo) {
-    std::cout << bit;
-    std::cout << "Получение завершено";
-    int a;
-    std::cin >> a;
-    exit(0);
+void handler(int signum) {
+    if (signum == SIGUSR1) {
+        std::cout << 0;
+        bit = "0";
+    } else if (signum == SIGUSR2) {
+        std::cout << 1;
+        bit = "1";
+    }
+    received_bits += bit;
+    kill(pid_transmitter, SIGUSR1);
 }
 
 int main() {
-    pid_t sender_pid;
+    signal(SIGUSR1, handler);
+    signal(SIGUSR2, handler);
+    std::cout << getpid() << std::endl;
 
-    std::cout << "PID получателя: " << getpid() << std::endl;
-    std::cout << "Введите PID отправителя: ";
-    std::cin >> sender_pid;
-    std::cout << "Готов к получению\n";
-    (void)signal(SIGUSR1, sigusr1_handler);
-    (void)signal(SIGUSR2, sigusr2_handler);
-    (void)signal(SIGINT, sigint_handler);
+    std::cout << "Введите PID передатчика: ";
+    std::cin >> pid_transmitter;
 
-    while (true);
 
+    while (true) {
+        pause();
+
+
+        if (received_bits.size() == 32) {
+            std::cout << std::endl;
+            int received_number = std::stoul(received_bits, 0, 2);
+            std::cout << "Принятое число: " << (int)received_number << std::endl;
+            break;
+        }
+    }
 
     return 0;
 }
