@@ -1,0 +1,6 @@
+diff --git a/../.idea/compiler.xml b/.idea/compiler.xml
+rename from ../.idea/compiler.xml
+rename to .idea/compiler.xml
+diff --git a/../.idea/deploymentTargetDropDown.xml b/.idea/deploymentTargetDropDown.xml
+rename from ../.idea/deploymentTargetDropDown.xml
+rename to .idea/deploymentTargetDropDown.xml
