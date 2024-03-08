@@ -18,9 +18,17 @@ void handler(int signum) {
     kill(pid_transmitter, SIGUSR1);
 }
 
+void sigintHandler(int signum) {
+    std::cout << std::endl;
+    int received_number = std::stoul(received_bits, 0, 2);
+    std::cout << "Принятое число: " << (int)received_number << std::endl;
+    exit(0);
+}
+
 int main() {
     signal(SIGUSR1, handler);
     signal(SIGUSR2, handler);
+    signal(SIGINT, sigintHandler);
     std::cout << getpid() << std::endl;
 
     std::cout << "Введите PID передатчика: ";
@@ -31,12 +39,12 @@ int main() {
         pause();
 
 
-        if (received_bits.size() == 32) {
-            std::cout << std::endl;
-            int received_number = std::stoul(received_bits, 0, 2);
-            std::cout << "Принятое число: " << (int)received_number << std::endl;
-            break;
-        }
+//        if (received_bits.size() == 32) {
+//            std::cout << std::endl;
+//            int received_number = std::stoul(received_bits, 0, 2);
+//            std::cout << "Принятое число: " << (int)received_number << std::endl;
+//            break;
+//        }
     }
 
     return 0;

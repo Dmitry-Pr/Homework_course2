@@ -41,6 +41,7 @@ int main() {
     }
     std::cout << std::endl;
     std::cout << "Все биты успешно переданы" << std::endl;
+    kill(pid_receiver, SIGINT);
 
     return 0;
 }
