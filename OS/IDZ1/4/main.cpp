@@ -96,15 +96,17 @@ int main(int argc, char *argv[]) {
                 printf("pid3: Can\'t close reading side of pipe\n");
                 exit(-1);
             }
-            FILE* file = fopen(argv[2], "w");
-            if (file == NULL) {
+            int fd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (fd < 0) {
                 printf("Can't open file for writing\n");
                 exit(-1);
             }
+            char buffer[50];
             for (int i = 0; i < 26; i++) {
-                fprintf(file, "%c: %d\n", 'A' + i, letterCounts[i]);
+                int len = sprintf(buffer, "%c: %d\n", 'A' + i, letterCounts[i]);
+                write(fd, buffer, len);
             }
-            fclose(file);
+            close(fd);
             printf("End of process 3 work\n");
 
         }
