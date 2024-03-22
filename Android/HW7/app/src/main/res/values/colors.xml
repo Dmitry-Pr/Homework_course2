@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="colorAccent">#673AB7</color>
+    <color name="colorAccentNight">#d0bcff</color>
     <color name="grey">#8e8e8e</color>
     <color name="darkGrey">#575656</color>
     <color name="sky">#7290E4</color>

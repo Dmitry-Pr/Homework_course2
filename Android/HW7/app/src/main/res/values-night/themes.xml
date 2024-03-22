@@ -2,7 +2,16 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.HW7" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
+        <item name="colorPrimary">@color/colorAccentNight</item>
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>
-    <style name="TextColor"><item name="android:textColor">@color/grey</item></style>
+
+    <style name="TextColor">
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
+    <style name="ButtonStandard">
+        <item name="android:backgroundTint">@color/colorAccentNight</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>

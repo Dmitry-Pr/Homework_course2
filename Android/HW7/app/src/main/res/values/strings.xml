@@ -2,4 +2,6 @@
     <string name="app_name">HW7</string>
     <string name="person">Мухин Дмитрий Владимирович БПИ228</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="maps_button">Открыть карту</string>
+    <string name="back_button">Назад на главную</string>
 </resources>
