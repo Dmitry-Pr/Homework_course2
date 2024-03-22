@@ -26,15 +26,16 @@ public class MainActivity extends AppCompatActivity {
         switch (currentNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
                 // Night mode is not active, we're in day light mode
-                theme_switcher.setChecked(false);
                 editor.putBoolean("isDarkTheme", false);
+                theme_switcher.setChecked(false);
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
                 // Night mode is active, we're in dark mode
-                theme_switcher.setChecked(true);
                 editor.putBoolean("isDarkTheme", true);
+                theme_switcher.setChecked(true);
                 break;
         }
+        editor.apply();
         theme_switcher.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (buttonView.isPressed()) {
                 if (!isChangingConfigurations()) {
