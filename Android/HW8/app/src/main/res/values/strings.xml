@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">HW8</string>
+    <string name="appwidget_text">Любимый сайт</string>
+    <string name="configure">Мухин Дмитрий Владимирович БПИ228</string>
+    <string name="add_widget">Добавить виджет</string>
+    <string name="app_widget_description">Позволяет открыть ссылку в интернете</string>
+    <string name="edit_text_start">http://</string>
+</resources>
