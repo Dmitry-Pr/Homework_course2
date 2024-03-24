@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">HW9</string>
+    <string name="person">Мухин Дмитрий Владимирович БПИ228</string>
+    <string name="hide">Скрыть текст</string>
+    <string name="red_text_color">Красный</string>
+    <string name="black_text_color">Чёрный</string>
+    <string name="about">О программе</string>
+    <string name="textview">Спрячь меня</string>
+    <string name="loop">Кувырок</string>
+    <string name="button_loop">Смотри, что умею</string>
+</resources>

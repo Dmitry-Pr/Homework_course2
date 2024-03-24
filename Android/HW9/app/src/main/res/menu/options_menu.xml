@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/show_text"
+        android:checkable="true"
+        android:title="@string/hide"
+        android:visible="true" />
+    <item
+        android:id="@+id/about"
+        android:title="@string/about"
+        android:visible="true" />
+    <item
+        android:id="@+id/loop"
+        android:title="@string/loop"
+        android:visible="true" />
+</menu>
