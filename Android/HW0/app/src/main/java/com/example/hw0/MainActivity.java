@@ -22,11 +22,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState != null) {
-            String savedDateText = savedInstanceState.getString("dateText", "");
-            TextView dateText = findViewById(R.id.date_text);
-            dateText.setText(savedDateText);
-        }
         theme_switcher = findViewById(R.id.theme_switcher);
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (currentNightMode) {
