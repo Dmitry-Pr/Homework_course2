@@ -35,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
     private SwitchCompat theme_switcher;
     private static final int PERMISSION_REQUEST_CODE = 1234;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         boolean launchedFromNotification = getIntent().getBooleanExtra("launchedFromNotification", false);
+        Intent intentt = getIntent();
         if (launchedFromNotification) {
             AlertDialog.Builder dialog = new
                     AlertDialog.Builder(MainActivity.this);
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             dialog.setIcon(android.R.drawable.ic_dialog_info);
             AlertDialog alertDialog = dialog.create();
             alertDialog.show();
+            getIntent().removeExtra("launchedFromNotification");
         }
         theme_switcher = findViewById(R.id.theme_switcher);
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -63,10 +66,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         theme_switcher.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            if (buttonView.isPressed()) {
+                if (isChecked) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
             }
         });
 
