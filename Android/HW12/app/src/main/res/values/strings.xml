@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">HW12</string>
+    <string name="action_settings">Settings</string>
+    <string name="person">Мухин Дмитрий Владимирович БПИ228</string>
+    <string name="about">О программе</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Великое произведение</string>
+    <string name="second_fragment_label">История</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="lorem_ipsum">
+        Просто послушайте вступление к этому произведению
+    </string>
+    <string name="info">
+        «Never Gonna Give You Up» (с англ.«Никогда тебя не брошу») — дебютный сингл Рика Эстли, выпущенный 27 июля 1987 года с его дебютного альбома Whenever You Need Somebody (1987). Он стал мировым хитом, первоначально заняв 1-е место в Великобритании в 1987 году, где он оставался на вершине чарта в течение пяти недель и стал самым продаваемым синглом того года. В результате он возглавил чарты в 25 странах, включая США и Германию. Песня стала лучшим британским синглом на церемонии Brit Awards 1988 года.
+Клип на песню стал основой для интернет-мема «Рикроллинг». В 2008 году Эстли получил музыкальную премию MTV Europe Music Award за лучший номер с этой песней в результате коллективного голосования тысяч людей в интернете. Эта песня считается фирменной песней Эстли, и он часто исполняет ее в конце своих концертов.
+    </string>
+    <string name="more">Еще</string>
+</resources>
