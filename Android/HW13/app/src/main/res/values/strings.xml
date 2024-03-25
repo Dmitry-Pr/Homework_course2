@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">HW13</string>
+    <string name="person">Мухин Дмитрий Владимирович БПИ228</string>
+    <string name="about">О программе</string>
+    <string name="my_video_button">Мое видео</string>
+    <string name="return_string">Вернуться</string>
+    <string name="video_hint">Enter video URL here</string>
+    <string name="play_text">Начать видео</string>
+</resources>
