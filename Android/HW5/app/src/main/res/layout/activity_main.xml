@@ -32,9 +32,10 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="409dp"
-        android:layout_height="600dp"
+        android:layout_width="371dp"
+        android:layout_height="598dp"
         android:orientation="vertical"
+        app:barrierMargin="5dp"
         app:layout_constraintBottom_toTopOf="@+id/person_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

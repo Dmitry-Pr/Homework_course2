@@ -13,6 +13,10 @@
         <ListView
             android:id="@+id/contacts_list_view"
             android:layout_width="match_parent"
-            android:layout_height="842dp" />
+            android:layout_height="842dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
