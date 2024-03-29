@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "900620672584",
+    "project_id": "hw16-fdfaf",
+    "storage_bucket": "hw16-fdfaf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900620672584:android:333711317a87981e3fc27d",
+        "android_client_info": {
+          "package_name": "com.example.hw16"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7YjbF3UPNKsVt8fBKpuZr_ooKwkRnuBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
