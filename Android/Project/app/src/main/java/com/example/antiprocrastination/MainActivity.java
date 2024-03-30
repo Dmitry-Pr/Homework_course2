@@ -40,9 +40,12 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private ProgressBar recordProgressBar;
     private CountDownTimer countDownTimer;
+    private CountDownTimer countDownTimerText;
     private long recordTimeInSeconds;
     private long millisUntilFinished;
+    private long millisUntilFinishedText;
     private TextView timerText;
+    SwitchCompat buttonStart;
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
@@ -63,13 +66,19 @@ public class MainActivity extends AppCompatActivity {
         }
         theme_switcher.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (buttonView.isPressed()) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putInt("progress", recordProgressBar.getProgress());
-                if (countDownTimer != null) {
-                    editor.putLong("remainingTime", millisUntilFinished);
+                if (isServiceRunning) {
+                    return;
                 }
-                editor.putBoolean("isServiceRunning", isServiceRunning);
-                editor.apply();
+//                SharedPreferences.Editor editor = sharedPreferences.edit();
+//                editor.putInt("progress", recordProgressBar.getProgress());
+//                if (countDownTimer != null) {
+//                    editor.putLong("remainingTime", millisUntilFinished);
+//                }
+//                if (countDownTimerText != null) {
+//                    editor.putLong("remainingTimeText", millisUntilFinishedText);
+//                }
+//                editor.putBoolean("isServiceRunning", isServiceRunning);
+//                editor.apply();
                 if (isChecked) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 } else {
@@ -82,44 +91,51 @@ public class MainActivity extends AppCompatActivity {
         recordText = findViewById(R.id.record_text);
         sharedPreferences = getSharedPreferences("appPreferences", MODE_PRIVATE);
         long recordTime = sharedPreferences.getLong("recordTime", 0);
-        isServiceRunning = sharedPreferences.getBoolean("isServiceRunning", false);
+//        isServiceRunning = sharedPreferences.getBoolean("isServiceRunning", false);
         recordText.setText(formatTime(recordTime));
+        lastSessionText.setText(sharedPreferences.getString("lastSessionText", "00:00:00"));
         lastSessionText.setText(formatTime(0));
         recordProgressBar = findViewById(R.id.recordProgressBar);
         timerText = findViewById(R.id.timerText);
-        if (isServiceRunning) {
-            int progress = sharedPreferences.getInt("progress", 0);
-            recordProgressBar.setProgress(progress);
-            long remainingTime = sharedPreferences.getLong("remainingTime", 0);
-            if (remainingTime > 0) {
-                startCountDownTimer(TimeUnit.MILLISECONDS.toSeconds(remainingTime));
-            }
-        }
+//        if (isServiceRunning) {
+//            int progress = sharedPreferences.getInt("progress", 0);
+//            recordProgressBar.setProgress(progress);
+//            long remainingTime = sharedPreferences.getLong("remainingTime", 0);
+//            if (remainingTime > 0) {
+//                startCountDownTimer(TimeUnit.MILLISECONDS.toSeconds(remainingTime));
+//            }
+//            long remainingTimeText = sharedPreferences.getLong("remainingTimeText", 0);
+//
+//
+//        }
         recordTimeInSeconds = recordTime;
         MainActivity obj = this;
-        SwitchCompat buttonStart = findViewById(R.id.button_start);
+        buttonStart = findViewById(R.id.button_start);
         buttonStart.setOnCheckedChangeListener((view, isChecked) -> {
-            if (view.isPressed()) {
-                if (isChecked) {
-                    isServiceRunning = true;
+            if (isChecked) {
+                isServiceRunning = true;
 
-                    Intent intent = new Intent(obj, SensorService.class);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(intent);
+                Intent intent = new Intent(obj, SensorService.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent);
 
-                    } else {
-                        startService(intent);
-                    }
-                    startCountDownTimer(recordTimeInSeconds);
                 } else {
-                    isServiceRunning = false;
-                    Intent intent = new Intent(obj, SensorService.class);
-                    stopService(intent);
-                    if (countDownTimer != null) {
-                        countDownTimer.cancel();
-                    }
-                    recordProgressBar.setProgress(0);
+                    startService(intent);
                 }
+                startCountDownTimer(recordTimeInSeconds);
+                startCountDownTimerText();
+            } else {
+                isServiceRunning = false;
+                Intent intent = new Intent(obj, SensorService.class);
+                stopService(intent);
+                if (countDownTimer != null) {
+                    countDownTimer.cancel();
+                }
+                if (countDownTimerText != null) {
+                    countDownTimerText.cancel();
+                }
+                timerText.setText("00:00:00");
+                recordProgressBar.setProgress(0);
             }
         });
 
@@ -128,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String stationaryTime = intent.getStringExtra("stationaryTime");
                 lastSessionText.setText(stationaryTime);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(lastSessionText.getText().toString(), "lastSessionText");
+                editor.apply();
                 String recordTime = intent.getStringExtra("recordTime"); // Получаем recordTime из intent
                 recordText.setText(recordTime); // Обновляем recordText
                 recordTimeInSeconds = TimeUnit.HOURS.toSeconds(Integer.parseInt(recordTime.split(":")[0]))
@@ -135,9 +154,12 @@ public class MainActivity extends AppCompatActivity {
                         + Integer.parseInt(recordTime.split(":")[2]);
                 if (isServiceRunning) {
                     startCountDownTimer(recordTimeInSeconds);
+                    startCountDownTimerText();
                 }
             }
-        };
+        }
+
+        ;
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //            registerReceiver(receiver, new IntentFilter("com.example.antiprocrastination.UPDATE_TIME"), Context.RECEIVER_EXPORTED);
 //        }
@@ -149,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
-        countDownTimer = new CountDownTimer(recordTimeInSeconds * 1000, 1000) {
+        countDownTimer = new CountDownTimer(recordTimeInSeconds * 1000, 100) {
             @Override
             public void onTick(long millisUntilFinished) {
                 MainActivity.this.millisUntilFinished = millisUntilFinished;
@@ -164,11 +186,34 @@ public class MainActivity extends AppCompatActivity {
         }.start();
     }
 
+    private void startCountDownTimerText() {
+        if (countDownTimerText != null) {
+            countDownTimerText.cancel();
+        }
+        countDownTimerText = new CountDownTimer(Long.MAX_VALUE, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                MainActivity.this.millisUntilFinishedText = millisUntilFinished;
+                long secondsPassed = (Long.MAX_VALUE - millisUntilFinished) / 1000;
+                String time = formatTime(secondsPassed);
+                timerText.setText(time);
+            }
+
+            @Override
+            public void onFinish() {
+                recordProgressBar.setProgress(100);
+            }
+        }.start();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (countDownTimer != null) {
             countDownTimer.cancel();
+        }
+        if (countDownTimerText != null) {
+            countDownTimerText.cancel();
         }
     }
 
@@ -209,6 +254,19 @@ public class MainActivity extends AppCompatActivity {
             dialog.setIcon(R.mipmap.ic_launcher_round);
             AlertDialog alertDialog = dialog.create();
             alertDialog.show();
+            return true;
+        }
+        if (id == R.id.settings) {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Переход в настройки")
+                    .setMessage("Вы уверены, что хотите перейти в настройки? Это остановит текущую сессию.")
+                    .setPositiveButton("ОК", (dialog, which) -> {
+                        buttonStart.setChecked(false);
+                        Intent intent = new Intent(this, SettingsActivity.class);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Отмена", null)
+                    .show();
             return true;
         }
         return super.onOptionsItemSelected(item);

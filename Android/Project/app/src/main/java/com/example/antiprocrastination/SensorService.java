@@ -181,6 +181,13 @@ public class SensorService extends Service implements SensorEventListener {
                 editor.putLong("recordTime", recordTime);
                 editor.apply();
             }
+            if (currentDurationInSeconds > sessionRecord) {
+                sessionRecord = currentDurationInSeconds;
+            }
+            Intent intent = new Intent("com.example.antiprocrastination.UPDATE_TIME");
+            intent.putExtra("stationaryTime", formatTime(sessionRecord));
+            intent.putExtra("recordTime", formatTime(recordTime));
+            sendBroadcast(intent);
         }
         super.onTaskRemoved(rootIntent);
         stopSelf();
