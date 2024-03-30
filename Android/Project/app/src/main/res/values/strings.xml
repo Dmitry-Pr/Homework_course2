@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AntiProcrastination</string>
+    <string name="person">Мухин Дмитрий Владимирович БПИ228</string>
+    <string name="about">О программе</string>
+    <string name="button_start">Начать работу</string>
+    <string name="session_record_text">Рекорд за эту сессию</string>
+    <string name="record_text">Рекорд</string>
+    <string name="start_time">00:00:00</string>
+</resources>
