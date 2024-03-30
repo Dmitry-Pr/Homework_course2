@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private Boolean isServiceRunning = false;
     private TextView recordText;
     private BroadcastReceiver receiver;
+//    private BroadcastReceiver receiver_notify;
     private SharedPreferences sharedPreferences;
     private ProgressBar recordProgressBar;
     private CountDownTimer countDownTimer;
@@ -69,16 +70,6 @@ public class MainActivity extends AppCompatActivity {
                 if (isServiceRunning) {
                     return;
                 }
-//                SharedPreferences.Editor editor = sharedPreferences.edit();
-//                editor.putInt("progress", recordProgressBar.getProgress());
-//                if (countDownTimer != null) {
-//                    editor.putLong("remainingTime", millisUntilFinished);
-//                }
-//                if (countDownTimerText != null) {
-//                    editor.putLong("remainingTimeText", millisUntilFinishedText);
-//                }
-//                editor.putBoolean("isServiceRunning", isServiceRunning);
-//                editor.apply();
                 if (isChecked) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 } else {
@@ -86,34 +77,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         lastSessionText = findViewById(R.id.last_session_text);
         recordText = findViewById(R.id.record_text);
         sharedPreferences = getSharedPreferences("appPreferences", MODE_PRIVATE);
         long recordTime = sharedPreferences.getLong("recordTime", 0);
-//        isServiceRunning = sharedPreferences.getBoolean("isServiceRunning", false);
         recordText.setText(formatTime(recordTime));
-        lastSessionText.setText(sharedPreferences.getString("lastSessionText", "00:00:00"));
-        lastSessionText.setText(formatTime(0));
+        String str = sharedPreferences.getString("lastSessionText", "00:00:00");
+        lastSessionText.setText(str);
         recordProgressBar = findViewById(R.id.recordProgressBar);
         timerText = findViewById(R.id.timerText);
-//        if (isServiceRunning) {
-//            int progress = sharedPreferences.getInt("progress", 0);
-//            recordProgressBar.setProgress(progress);
-//            long remainingTime = sharedPreferences.getLong("remainingTime", 0);
-//            if (remainingTime > 0) {
-//                startCountDownTimer(TimeUnit.MILLISECONDS.toSeconds(remainingTime));
-//            }
-//            long remainingTimeText = sharedPreferences.getLong("remainingTimeText", 0);
-//
-//
-//        }
         recordTimeInSeconds = recordTime;
         MainActivity obj = this;
         buttonStart = findViewById(R.id.button_start);
         buttonStart.setOnCheckedChangeListener((view, isChecked) -> {
             if (isChecked) {
                 isServiceRunning = true;
+                theme_switcher.setEnabled(false);
 
                 Intent intent = new Intent(obj, SensorService.class);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -126,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 startCountDownTimerText();
             } else {
                 isServiceRunning = false;
+                theme_switcher.setEnabled(true);
                 Intent intent = new Intent(obj, SensorService.class);
                 stopService(intent);
                 if (countDownTimer != null) {
@@ -145,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 String stationaryTime = intent.getStringExtra("stationaryTime");
                 lastSessionText.setText(stationaryTime);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(lastSessionText.getText().toString(), "lastSessionText");
+//                editor.putString(lastSessionText.getText().toString(), "lastSessionText");
                 editor.apply();
                 String recordTime = intent.getStringExtra("recordTime"); // Получаем recordTime из intent
                 recordText.setText(recordTime); // Обновляем recordText
@@ -157,12 +137,15 @@ public class MainActivity extends AppCompatActivity {
                     startCountDownTimerText();
                 }
             }
-        }
-
-        ;
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            registerReceiver(receiver, new IntentFilter("com.example.antiprocrastination.UPDATE_TIME"), Context.RECEIVER_EXPORTED);
-//        }
+        };
+//        receiver_notify = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                String message = intent.getStringExtra("message");
+//
+//            }
+//        };
+//        registerReceiver(receiver_notify, new IntentFilter("com.example.antiprocrastination.NOTIFICATION"), Context.RECEIVER_EXPORTED);
 
 
     }
@@ -209,11 +192,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+//        unregisterReceiver(receiver_notify);
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
         if (countDownTimerText != null) {
             countDownTimerText.cancel();
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isChangingConfigurations()) {
+            sharedPreferences.edit().putString("lastSessionText", (String) lastSessionText.getText()).apply();
+        } else {
+            sharedPreferences.edit().putString("lastSessionText", "00:00:00").apply();
         }
     }
 

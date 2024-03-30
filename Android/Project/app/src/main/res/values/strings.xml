@@ -26,4 +26,9 @@
     <string name="enable_notifications">Отправлять уведомление о достижении рекорда\n</string>
     <string name="notifications">Уведомления</string>
     <string name="records">Рекорд</string>
+    <string name="delete_record">Удалить текущий рекорд</string>
+    <string name="delete_record_title">Удаление рекорда</string>
+    <string name="delete_record_confirmation">Удалить рекорд?</string>
+    <string name="ok">Удалить</string>
+    <string name="cancel">Отмена</string>
 </resources>

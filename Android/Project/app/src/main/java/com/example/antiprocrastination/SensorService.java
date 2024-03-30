@@ -42,7 +42,7 @@ public class SensorService extends Service implements SensorEventListener {
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (accelerometer != null) {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(this, accelerometer, 250000);
         } else {
             Log.e("SensorService", "Device does not support accelerometer");
         }
@@ -50,7 +50,7 @@ public class SensorService extends Service implements SensorEventListener {
         stationaryTime = sharedPreferences.getLong("stationaryTime", 0);
         recordTime = sharedPreferences.getLong("recordTime", 0);
         lastMovementTime = System.currentTimeMillis();
-        sessionRecord = 0;
+        sessionRecord = sharedPreferences.getLong("sessionRecord", 0);
     }
 
     @SuppressLint("ForegroundServiceType")
@@ -93,24 +93,23 @@ public class SensorService extends Service implements SensorEventListener {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         long stationaryTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(stationaryTime);
         editor.putLong("last_session_time", stationaryTimeInSeconds);
-        Boolean flag1 = false;
-        Boolean flag2 = false;
+        Intent intent = new Intent("com.example.antiprocrastination.UPDATE_TIME");
         if (stationaryTimeInSeconds > recordTime) {
             recordTime = stationaryTimeInSeconds;
             editor.putLong("recordTime", recordTime);
-            flag1 = true;
+            Intent intent_notify = new Intent("com.example.antiprocrastination.NOTIFICATION");
+            intent_notify.putExtra("message", "Ваше сообщение здесь");
+            sendBroadcast(intent);
         }
         if (stationaryTimeInSeconds > sessionRecord) {
             sessionRecord = stationaryTimeInSeconds;
-            flag2 = true;
+            editor.putLong("sessionRecord", 0);
         }
         editor.apply();
-        if (flag1 || flag2) {
-            Intent intent = new Intent("com.example.antiprocrastination.UPDATE_TIME");
-            intent.putExtra("stationaryTime", formatTime(stationaryTimeInSeconds));
-            intent.putExtra("recordTime", formatTime(recordTime));
-            sendBroadcast(intent);
-        }
+
+        intent.putExtra("stationaryTime", formatTime(sessionRecord));
+        intent.putExtra("recordTime", formatTime(recordTime));
+        sendBroadcast(intent);
 
         sensorManager.unregisterListener(this);
     }
@@ -136,24 +135,19 @@ public class SensorService extends Service implements SensorEventListener {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     long stationaryTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(stationaryTime);
                     editor.putLong("last_session_time", stationaryTimeInSeconds);
-                    Boolean flag1 = false;
-                    Boolean flag2 = false;
+                    Intent intent = new Intent("com.example.antiprocrastination.UPDATE_TIME");
                     if (stationaryTimeInSeconds > recordTime) {
                         recordTime = stationaryTimeInSeconds;
                         editor.putLong("recordTime", recordTime);
-                        flag1 = true;
                     }
                     if (stationaryTimeInSeconds > sessionRecord) {
                         sessionRecord = stationaryTimeInSeconds;
-                        flag2 = true;
+                        editor.putLong("sessionRecord", sessionRecord);
                     }
                     editor.apply();
-                    if (flag1 || flag2) {
-                        Intent intent = new Intent("com.example.antiprocrastination.UPDATE_TIME");
-                        intent.putExtra("stationaryTime", formatTime(stationaryTimeInSeconds));
-                        intent.putExtra("recordTime", formatTime(recordTime));
-                        sendBroadcast(intent);
-                    }
+                    intent.putExtra("stationaryTime", formatTime(sessionRecord));
+                    intent.putExtra("recordTime", formatTime(recordTime));
+                    sendBroadcast(intent);
                 }
                 lastMovementTime = System.currentTimeMillis();
             } else {
