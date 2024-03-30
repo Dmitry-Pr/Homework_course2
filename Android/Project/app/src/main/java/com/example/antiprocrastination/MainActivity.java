@@ -128,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
 //                editor.putString(lastSessionText.getText().toString(), "lastSessionText");
                 editor.apply();
                 String recordTime = intent.getStringExtra("recordTime"); // Получаем recordTime из intent
+                if (recordTime == null) {
+                    recordTime = "00:00:00";
+                }
                 recordText.setText(recordTime); // Обновляем recordText
                 recordTimeInSeconds = TimeUnit.HOURS.toSeconds(Integer.parseInt(recordTime.split(":")[0]))
                         + TimeUnit.MINUTES.toSeconds(Integer.parseInt(recordTime.split(":")[1]))
