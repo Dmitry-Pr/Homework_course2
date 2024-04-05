@@ -19,5 +19,6 @@
 
 __Клиент__
 ![img.png](img.png)
+
 __Сервер__
 ![img_1.png](img_1.png)
