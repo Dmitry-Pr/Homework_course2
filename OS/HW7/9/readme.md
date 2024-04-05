@@ -19,8 +19,8 @@
 
 __Клиент__
 
-![img_1.png](img_1.png)![img.png](img.png)
+![img_1.png](img_1.png)
 
 __Сервер__
 
-![img.png](img.png)![img_1.png](img_1.png)
+![img.png](img.png)
