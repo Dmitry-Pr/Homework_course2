@@ -29,23 +29,23 @@ void handle_sigint(int sig) {
 void seller(int dep_num) {
     while (true) {
         sem_wait(customer_arrived[dep_num]);  // Продавец ждет покупателя
-        std::cout << "Seller in department " << dep_num + 1 << " is busy.\n";
+        std::cout << "Seller in department " << dep_num + 1 << " is busy" << std::endl;
         if (out.is_open()) {
-            out << "Seller in department " << dep_num + 1 << " is busy.\n";
+            out << "Seller in department " << dep_num + 1 << " is busy" << std::endl;
         }
         sleep(1);  // Симулируем время, необходимое для обслуживания покупателя
-        std::cout << "Seller in department " << dep_num + 1 << " is free.\n";
+        std::cout << "Seller in department " << dep_num + 1 << " is free" << std::endl;
         if (out.is_open()) {
-            out << "Seller in department " << dep_num + 1 << " is free.\n";
+            out << "Seller in department " << dep_num + 1 << " is free" << std::endl;
         }
         sem_post(departments[dep_num]);
     }
 }
 
 void customer(int i) {
-    std::cout << "Customer " << i << " has entered the store.\n";
+    std::cout << "Customer " << i << " has entered the store" << std::endl;
     if (out.is_open()) {
-        out << "Customer " << i << " has entered the store.\n";
+        out << "Customer " << i << " has entered the store" << std::endl;
     }
     srand(getpid());
     auto repeat = rand() % NUM_DEPARTMENTS + 1;
@@ -53,29 +53,29 @@ void customer(int i) {
         auto dep_num = rand() % NUM_DEPARTMENTS;
         sem_t *department = departments[dep_num];
 
-        std::cout << "Customer " << i << " is in queue in department " << dep_num + 1 << ".\n";
+        std::cout << "Customer " << i << " is in queue in department " << dep_num + 1 << std::endl;
         if (out.is_open()) {
-            out << "Customer " << i << " is in queue in department " << dep_num + 1 << ".\n";
+            out << "Customer " << i << " is in queue in department " << dep_num + 1 << std::endl;
         }
         sem_post(customer_arrived[dep_num]);  // Покупатель сообщает о своем приходе
         sem_wait(department);
         sleep(1);
-        std::cout << "Customer " << i << " is done shopping in department " << dep_num + 1 << ".\n";
+        std::cout << "Customer " << i << " is done shopping in department " << dep_num + 1 << std::endl;
         if (out.is_open()) {
-            out << "Customer " << i << " is done shopping in department " << dep_num + 1 << ".\n";
+            out << "Customer " << i << " is done shopping in department " << dep_num + 1 << std::endl;
         }
         sleep(1);
     }
-    std::cout << "Customer " << i << " has left the store.\n";
+    std::cout << "Customer " << i << " has left the store" << std::endl;
     if (out.is_open()) {
-        out << "Customer " << i << " has left the store.\n";
+        out << "Customer " << i << " has left the store" << std::endl;
     }
     exit(0);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " NUM_CUSTOMERS [OUTPUT_FILE]\n";
+        std::cerr << "Usage: " << argv[0] << " NUM_CUSTOMERS [OUTPUT_FILE]" << std::endl;
         return 1;
     }
 
@@ -83,10 +83,10 @@ int main(int argc, char* argv[]) {
     if (argc == 3) {
         out.open(argv[2]);
         if (!out) {
-            std::cerr << "Failed to open output file " << argv[2] << "\n";
+            std::cerr << "Failed to open output file " << argv[2] << std::endl;
             return 1;
         } else {
-            std::cout << "Output is also redirected to " << argv[2] << "\n";
+            std::cout << "Output is also redirected to " << argv[2] << std::endl;
         }
     }
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
         customer_arrived[i] = sem_open(("/sem_arrived" + std::to_string(i)).c_str(), O_CREAT, 0644,
                                        0);  // Инициализируем второй семафор
         if (departments[i] == SEM_FAILED || customer_arrived[i] == SEM_FAILED) {
-            std::cerr << "Failed to create semaphore\n";
+            std::cerr << "Failed to create semaphore" << std::endl;
             return 1;
         }
         pid_t pid = fork();
@@ -122,9 +122,9 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < NUM_CUSTOMERS; ++i) {
         wait(NULL);
     }
-    std::cout << "All customers have left the store.\n";
+    std::cout << "All customers have left the store" << std::endl;
     if (out.is_open()) {
-        out << "All customers have left the store.\n";
+        out << "All customers have left the store" << std::endl;
     }
     for (pid_t pid: seller_pids) {
         kill(pid, SIGINT);
