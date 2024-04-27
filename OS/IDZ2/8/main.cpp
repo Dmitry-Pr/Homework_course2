@@ -38,7 +38,9 @@ int main(int argc, char *argv[]) {
     }
     signal(SIGINT, cleanup);
     NUM_CUSTOMERS = std::atoi(argv[1]);
-
+    std::ofstream out;
+    out.open("output.txt");
+    out.close();
     // Создание и инициализация семафора all_customers_done
     all_customers_done = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
     if (all_customers_done == -1) {
