@@ -13,17 +13,34 @@ const int NUM_DEPARTMENTS = 3;
 int NUM_CUSTOMERS = 4;
 int customer_arrived[NUM_DEPARTMENTS];
 int departments[NUM_DEPARTMENTS];
+int* shared_memory;
+int all_customers_done;
+int fd;
+
+void cleanup(int sig) {
+    // Удаление семафоров
+    for (int i = 0; i < NUM_DEPARTMENTS; ++i) {
+        semctl(customer_arrived[i], 0, IPC_RMID);
+        semctl(departments[i], 0, IPC_RMID);
+    }
+    semctl(all_customers_done, 0, IPC_RMID);
+
+    // Отсоединение и удаление разделяемой памяти
+    shmdt(shared_memory);
+    shmctl(fd, IPC_RMID, NULL);
+    exit(0);
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " NUM_CUSTOMERS" << std::endl;
         return 1;
     }
-
+    signal(SIGINT, cleanup);
     NUM_CUSTOMERS = std::atoi(argv[1]);
 
     // Создание и инициализация семафора all_customers_done
-    int all_customers_done = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+    all_customers_done = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
     if (all_customers_done == -1) {
         perror("semget failed");
         exit(1);
@@ -34,14 +51,14 @@ int main(int argc, char *argv[]) {
     }
 
     // Создание общей памяти
-    int fd = shmget(IPC_PRIVATE, sizeof(int) * (NUM_DEPARTMENTS + NUM_CUSTOMERS), IPC_CREAT | 0666);
+    fd = shmget(IPC_PRIVATE, sizeof(int) * (NUM_DEPARTMENTS + NUM_CUSTOMERS), IPC_CREAT | 0666);
     if (fd == -1) {
         perror("shmget failed");
         exit(1);
     }
 
 // Получение указателя на область общей памяти
-    int* shared_memory = (int*) shmat(fd, NULL, 0);
+    shared_memory = (int*) shmat(fd, NULL, 0);
     if (shared_memory == (int*) -1) {
         perror("shmat failed");
         exit(1);
@@ -91,21 +108,18 @@ int main(int argc, char *argv[]) {
     // Все покупатели ушли, уведомляем продавцов
     sembuf sem_op;
     sem_op.sem_num = 0;
-    sem_op.sem_op = 1;  // Увеличиваем значение семафора на 1
+    sem_op.sem_op = 3;  // Увеличиваем значение семафора на 3
     sem_op.sem_flg = 0;
     semop(all_customers_done, &sem_op, 1);
 
-    // Закрытие файла
-    if (close(fd) == -1) {
-        perror("close failed");
-        exit(1);
+    for(int i = 0; i < NUM_DEPARTMENTS; ++i) {
+        sem_op.sem_op = 1;
+        semop(customer_arrived[i], &sem_op, 1);
     }
 
-    // Удаление файла
-    if (remove("/tmp/shared_memory") == -1) {
-        perror("remove failed");
-        exit(1);
-    }
+    sem_op.sem_op = -6;
+    semop(all_customers_done, &sem_op, 1);
+    cleanup(0);
 
     return 0;
 }

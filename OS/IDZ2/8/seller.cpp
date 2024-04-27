@@ -16,14 +16,17 @@ void seller(int dep_num, int all_customers_done, int customer_arrived, int depar
     while (true) {
         sembuf sem_op;
         sem_op.sem_num = 0;
-        sem_op.sem_op = -1;  // Уменьшаем значение семафора на 1
         sem_op.sem_flg = 0;
+        sem_op.sem_op = -1;
         // Проверяем, ушли ли все покупатели
+
+        semop(customer_arrived, &sem_op, 1);  // Продавец ждет покупателя
         int sem_val = semctl(all_customers_done, 0, GETVAL, NULL);
-        if (sem_val == 1) {
+        if (sem_val > 0) {
+            sem_op.sem_op = 1;
+            semop(all_customers_done, &sem_op, 1);
             break;  // Если все покупатели ушли, продавец прекращает работу
         }
-        semop(customer_arrived, &sem_op, 1);  // Продавец ждет покупателя
         std::cout << "Seller in department " << dep_num + 1 << " is busy" << std::endl;
         if (out.is_open()) {
             out << "Seller in department " << dep_num + 1 << " is busy" << std::endl;
