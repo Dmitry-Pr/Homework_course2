@@ -1,0 +1,14 @@
+Customer 1 has entered the store
+Customer 1 is in queue in department 2
+Seller in department 2 is busy
+Seller in department 2 is free
+Customer 1 is done shopping in department 2
+Customer 1 is in queue in department 3
+Seller in department 3 is busy
+Seller in department 3 is free
+Customer 1 is done shopping in department 3
+Customer 1 is in queue in department 2
+Seller in department 2 is busy
+Seller in department 2 is free
+Customer 1 is done shopping in department 2
+Customer 1 has left the store
