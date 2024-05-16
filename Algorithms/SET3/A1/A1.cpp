@@ -269,6 +269,68 @@ int main() {
             out << '\n';
         }
     }
+    for (int k = 0; k < 3; k++) {
+        out << "QuickSort for " << messages[k] << '\n';
+        for (int j = 0; j < 4; j++) {
+            for (int i = 100; i <= 3000; i += 100) {
+                sum = 0;
+                auto arr = sg.getSubArray(arrays[k], 0, i);
+                auto start = std::chrono::high_resolution_clock::now();
+                sort.quickSort(arr, 0, arr.size() - 1, sum);
+                auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                long long millisec = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                out << millisec << ' ' << sum << '\n';
+            }
+            out << '\n';
+        }
+    }
+    for (int k = 0; k < 3; k++) {
+        out << "StringQuickSort for " << messages[k] << '\n';
+        for (int j = 0; j < 4; j++) {
+            for (int i = 100; i <= 3000; i += 100) {
+                sum = 0;
+                auto arr = sg.getSubArray(arrays[k], 0, i);
+                auto start = std::chrono::high_resolution_clock::now();
+                sort.stringQuickSort(arr, 0, sum);
+                auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                long long millisec = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                out << millisec << ' ' << sum << '\n';
+            }
+            out << '\n';
+        }
+    }
+
+    for (int k = 0; k < 3; k++) {
+        out << "MSDSort for " << messages[k] << '\n';
+        for (int j = 0; j < 4; j++) {
+            for (int i = 100; i <= 3000; i += 100) {
+                sum = 0;
+                auto arr = sg.getSubArray(arrays[k], 0, i);
+                auto start = std::chrono::high_resolution_clock::now();
+                sort.MSDSort(arr, 0, arr.size() - 1, 0, sum);
+                auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                long long millisec = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                out << millisec << ' ' << sum << '\n';
+            }
+            out << '\n';
+        }
+    }
+
+    for (int k = 0; k < 3; k++) {
+        out << "MSDQuickSort for " << messages[k] << '\n';
+        for (int j = 0; j < 4; j++) {
+            for (int i = 100; i <= 3000; i += 100) {
+                sum = 0;
+                auto arr = sg.getSubArray(arrays[k], 0, i);
+                auto start = std::chrono::high_resolution_clock::now();
+                sort.MSDQuickSort(arr, 0, arr.size() - 1, 0, sum);
+                auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                long long millisec = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                out << millisec << ' ' << sum << '\n';
+            }
+            out << '\n';
+        }
+    }
     out.close();
 
 
