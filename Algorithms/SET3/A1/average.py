@@ -1,6 +1,7 @@
 def average(a, b, c, d):
     return (a + b + c + d) / 4
 
+
 with open('output.txt', 'r') as file, open('average.txt', 'w') as outfile:
     for i in range(15):
         s = file.readline()
