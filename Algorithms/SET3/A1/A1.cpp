@@ -1,8 +1,10 @@
 #include <algorithm>
+#include "chrono"
 #include <random>
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 class StringGenerator {
 private:
@@ -122,7 +124,7 @@ public:
         }
     }
 
-    std::vector<std::string> ternaryQuickSort(std::vector<std::string> &r, size_t l, size_t &sum) {
+    std::vector<std::string> stringQuickSort(std::vector<std::string> &r, size_t l, size_t &sum) {
         if (r.size() <= 1) return r;
         std::vector<std::string> rExcl;
         std::vector<std::string> tmp;
@@ -133,7 +135,10 @@ public:
                 tmp.push_back(r[i]);
             }
         }
-        r = tmp;
+        r = std::move(tmp);
+        if (r.empty()) {
+            return rExcl;
+        }
         srand(time(NULL));
         int random = rand() % r.size();
         std::swap(r[random], r[r.size() - 1]);
@@ -153,9 +158,9 @@ public:
                 rEqual.push_back(r[i]);
             }
         }
-        rLess = ternaryQuickSort(rLess, l, sum);
-        rGreater = ternaryQuickSort(rGreater, l, sum);
-        rEqual = ternaryQuickSort(rEqual, l + 1, sum);
+        rLess = stringQuickSort(rLess, l, sum);
+        rGreater = stringQuickSort(rGreater, l, sum);
+        rEqual = stringQuickSort(rEqual, l + 1, sum);
         std::vector<std::string> result;
         std::copy(rExcl.begin(), rExcl.end(), std::back_inserter(result));
         std::copy(rLess.begin(), rLess.end(), std::back_inserter(result));
@@ -163,30 +168,108 @@ public:
         std::copy(rGreater.begin(), rGreater.end(), std::back_inserter(result));
         return result;
     }
+
+    static int char_at(std::string str, int d)
+    {
+        if (str.size() <= d)
+            return -1;
+        else
+            return str.at(d);
+    }
+
+    void MSDSort(std::vector<std::string> &str, int lo, int hi, int d, size_t &sum) {
+        if (hi <= lo) {
+            return;
+        }
+
+        int count[256 + 2] = {0};
+        std::unordered_map<int, std::string> temp;
+
+        for (int i = lo; i <= hi; i++) {
+            int c = char_at(str[i], d);
+            count[c + 2]++;
+        }
+
+        for (int r = 0; r < 256 + 1; r++)
+            count[r + 1] += count[r];
+
+        for (int i = lo; i <= hi; i++) {
+            int c = char_at(str[i], d);
+            temp[count[c + 1]++] = str[i];
+        }
+
+        for (int i = lo; i <= hi; i++)
+            str[i] = temp[i - lo];
+
+
+        for (int r = 0; r < 256; r++)
+            MSDSort(str, lo + count[r], lo + count[r + 1] - 1, d + 1, sum);
+    }
+
+    void MSDQuickSort(std::vector<std::string> &str, int lo, int hi, int d, size_t &sum) {
+        if (hi <= lo) {
+            return;
+        }
+
+        if (hi - lo < 74) {
+            auto cutted = std::vector<std::string>(str.begin() + lo, str.begin() + hi);
+            auto res = stringQuickSort(cutted, d, sum);
+            std::copy(res.begin(), res.end(), str.begin() + lo);
+            return;
+        }
+
+        int count[256 + 2] = {0}; // 74
+        std::unordered_map<int, std::string> temp;
+
+        for (int i = lo; i <= hi; i++) {
+            int c = char_at(str[i], d);
+            count[c + 2]++;
+        }
+
+        for (int r = 0; r < 256 + 1; r++)
+            count[r + 1] += count[r];
+
+        for (int i = lo; i <= hi; i++) {
+            int c = char_at(str[i], d);
+            temp[count[c + 1]++] = str[i];
+        }
+
+        for (int i = lo; i <= hi; i++)
+            str[i] = temp[i - lo];
+
+
+        for (int r = 0; r < 256; r++)
+            MSDQuickSort(str, lo + count[r], lo + count[r + 1] - 1, d + 1, sum);
+    }
 };
 
 int main() {
     StringGenerator sg;
     Sort sort;
     auto randomArr = sg.generateArray(3000, 10, 200);
-
-    std::vector<std::string> sortedArr(randomArr.size());
-    std::copy(randomArr.begin(), randomArr.end(), sortedArr.begin());
-    std::sort(sortedArr.begin(), sortedArr.end());
-    size_t sum = 0;
-    for (const auto &s: sg.getSubArray(sortedArr, 0, 3)) {
-        std::cout << s << std::endl;
-    }
-    std::cout << sum << std::endl;
-
     auto reversedArr = sg.generateReverseSortedArray(3000, 10, 200);
     auto nearlySortedArr = sg.generateNearlySortedArray(3000, 10, 200, 300);
-    sum = 0;
-    auto res = sort.ternaryQuickSort(randomArr, 0, sum);
-    for (const auto &s: sg.getSubArray(res, 0, 3)) {
-        std::cout << s << std::endl;
+    size_t sum = 0;
+    std::ofstream out;          // поток для записи
+    out.open("..\\A1\\output.txt");
+    auto messages = std::vector<std::string>{"random array", "reversed array", "nearly sorted array"};
+    auto arrays = std::vector<std::vector<std::string>>{randomArr, reversedArr, nearlySortedArr};
+    for (int k = 0; k < 3; k++) {
+        out << "MergeSort for " << messages[k] << '\n';
+        for (int j = 0; j < 4; j++) {
+            for (int i = 100; i <= 3000; i += 100) {
+                sum = 0;
+                auto arr = sg.getSubArray(arrays[k], 0, i);
+                auto start = std::chrono::high_resolution_clock::now();
+                sort.mergeSort(arr, 0, arr.size() - 1, sum);
+                auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                long long millisec = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                out << millisec << ' ' << sum << '\n';
+            }
+            out << '\n';
+        }
     }
-    std::cout << sum << std::endl;
+    out.close();
 
 
 }
