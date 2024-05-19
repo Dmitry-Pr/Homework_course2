@@ -42,15 +42,16 @@ int main(int argc, char *argv[]) {
             break;
         } else {
             buffer[bytesReceived] = '\0'; // Добавляем нулевой символ в конец строки
-            std::cout << "Received request from server: " << buffer << std::endl;
+            int request = std::stoi(buffer);
+            std::cout << "Serving customer: " << request << std::endl;
 
             // Обработка запроса
-            std::cout << "Processing request..." << std::endl;
-            sleep(1); // Имитация обработки запроса
-
+            std::cout << "Processing ..." << std::endl;
+            sleep(2); // Имитация обработки запроса
             // Отправка сообщения о завершении обработки на сервер
             std::string doneMessage = "Done processing request";
             send(sock, doneMessage.c_str(), doneMessage.size(), 0);
+            std::cout << "Finished serving customer: " << request << std::endl;
         }
     }
 

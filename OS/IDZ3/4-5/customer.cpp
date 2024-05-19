@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
     } else {
         std::cout << "Connected to server" << std::endl;
     }
-
+    sleep(3);
     for (int i = 0; i < NUM_DEPARTMENTS; ++i) {
         int department = rand() % NUM_DEPARTMENTS;
-        std::cout << "Customer is in queue in department " << department + 1 << std::endl;
+        std::cout << "Customer is in queue in department " << department << std::endl;
         char buffer[1024] = {0};
         sprintf(buffer, "%d", department);
         send(sock, buffer, strlen(buffer), 0);
@@ -49,11 +49,8 @@ int main(int argc, char *argv[]) {
         if (bytesReceived < 0) {
             std::cerr << "Error receiving message from server" << std::endl;
         } else {
-            recvBuffer[bytesReceived] = '\0'; // Добавляем нулевой символ в конец строки
-            std::cout << "Received message from server: " << recvBuffer << std::endl;
+            std::cout << "Customer is done shopping in department " << department << std::endl;
         }
-
-        std::cout << "Customer is done shopping in department " << department + 1 << std::endl;
         sleep(1);
     }
 
