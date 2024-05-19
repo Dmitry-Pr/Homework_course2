@@ -42,7 +42,17 @@ int main(int argc, char *argv[]) {
         char buffer[1024] = {0};
         sprintf(buffer, "%d", department);
         send(sock, buffer, strlen(buffer), 0);
-        sleep(1);
+
+        // Получение сообщения от сервера
+        char recvBuffer[1024] = {0};
+        int bytesReceived = recv(sock, recvBuffer, sizeof(recvBuffer) - 1, 0);
+        if (bytesReceived < 0) {
+            std::cerr << "Error receiving message from server" << std::endl;
+        } else {
+            recvBuffer[bytesReceived] = '\0'; // Добавляем нулевой символ в конец строки
+            std::cout << "Received message from server: " << recvBuffer << std::endl;
+        }
+
         std::cout << "Customer is done shopping in department " << department + 1 << std::endl;
         sleep(1);
     }
