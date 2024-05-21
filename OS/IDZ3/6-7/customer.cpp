@@ -55,6 +55,6 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Customer has left the store" << std::endl;
-
+    close(sock);
     return 0;
 }

@@ -7,16 +7,41 @@
 #include <vector>
 #include <csignal>
 #include <arpa/inet.h>
+#include <sstream>
+#include <sys/sem.h>
+#include <map>
 
+// Создание семафора
+int sem_id = semget(IPC_PRIVATE, 1, 0666 | IPC_CREAT);
+
+
+struct sembuf sem_op;
 const int NUM_DEPARTMENTS = 3;
 std::vector<int> departments(NUM_DEPARTMENTS, 0);
+pthread_t threads[NUM_DEPARTMENTS];
+std::vector <pthread_t> client_threads;
 int server_fd = 0;
 int output_socket = 0;
+std::map<int, pthread_mutex_t> socket_mutexes;
 
-void handle_client(int client_sock, int customer_num) {
+void *handle_client(void *arg) {
+    int client_sock = ((int *) arg)[0];
+    int customer_num = ((int *) arg)[1];
+    delete[] (int *) arg;
+    pthread_mutex_t socket_mutex;
+    pthread_mutex_init(&socket_mutex, NULL);
+    socket_mutexes[client_sock] = socket_mutex;
+
     char buffer[1024] = {0};
     while (true) {
+        // Перед вызовом recv()
+        pthread_mutex_lock(&socket_mutexes[client_sock]);
+
         int bytesReceived = recv(client_sock, buffer, sizeof(buffer) - 1, 0);
+
+        // После вызова recv()
+        pthread_mutex_unlock(&socket_mutexes[client_sock]);
+
         if (bytesReceived < 0) {
             std::cerr << "Error receiving message from client" << std::endl;
             break;
@@ -40,24 +65,68 @@ void handle_client(int client_sock, int customer_num) {
             }
 
             // Отправляем сообщение продавцу
-            std::string message = std::to_string(customer_num);
-            send(departments[seller_num], message.c_str(), message.size(), 0);
+            char message[1024] = {0};
+            sprintf(message, "%d\n%d", customer_num, client_sock);
+            send(departments[seller_num], message, strlen(message), 0);
 
-            // Получаем ответ от продавца
-            char seller_buffer[1024] = {0};
-            int seller_bytesReceived = recv(departments[seller_num], seller_buffer, sizeof(seller_buffer) - 1, 0);
-            if (seller_bytesReceived < 0) {
-                std::cerr << "Error receiving message from seller" << std::endl;
-            } else {
-                seller_buffer[seller_bytesReceived] = '\0'; // Добавляем нулевой символ в конец строки
-                std::cout << "Received message from seller: " << seller_buffer << std::endl;
-                std::string output = "Customer " + std::to_string(customer_num) + " is done shopping in department " + buffer;
-                send(output_socket, output.c_str(), output.size(), 0);
-                // Отправляем ответ продавца клиенту
-                send(client_sock, seller_buffer, seller_bytesReceived, 0);
-            }
+            // Перед вызовом send()
+            pthread_mutex_lock(&socket_mutexes[client_sock]);
+
+//            // Получаем ответ от продавца
+//            char seller_buffer[1024] = {0};
+//            int seller_bytesReceived = recv(departments[seller_num], seller_buffer, sizeof(seller_buffer) - 1, 0);
+//            if (seller_bytesReceived < 0) {
+//                std::cerr << "Error receiving message from seller" << std::endl;
+//            } else {
+//                seller_buffer[seller_bytesReceived] = '\0'; // Добавляем нулевой символ в конец строки
+//                std::cout << "Received message from seller: " << seller_buffer << std::endl;
+//                std::string output =
+//                        "Customer " + std::to_string(customer_num) + " is done shopping in department " + buffer;
+//                send(output_socket, output.c_str(), output.size(), 0);
+//                // Отправляем ответ продавца клиенту
+//                send(client_sock, seller_buffer, seller_bytesReceived, 0);
+//            }
+
         }
     }
+    return NULL;
+}
+
+void *answer_to_client(void *arg) {
+    int seller_num = *((int *) arg);
+    free(arg);
+    while (true) {
+        // Получаем ответ от продавца
+        char seller_buffer[1024] = {0};
+        int seller_bytesReceived = recv(departments[seller_num], seller_buffer, sizeof(seller_buffer) - 1, 0);
+        if (seller_bytesReceived < 0) {
+            std::cerr << "Error receiving message from seller" << std::endl;
+        } else {
+            seller_buffer[seller_bytesReceived] = '\0'; // Добавляем нулевой символ в конец строки
+            std::cout << "Received message from seller: " << seller_buffer << std::endl;
+            std::string str(seller_buffer);
+            std::istringstream iss(str);
+            std::string line;
+            std::getline(iss, line);
+            int customer_num = std::stoi(line);
+            std::getline(iss, line);
+            int client_sock = std::stoi(line);
+            std::string output = "Customer " + std::to_string(customer_num) + " is done shopping in department " +
+                                 std::to_string(seller_num);
+            send(output_socket, output.c_str(), output.size(), 0);
+            // Отправляем ответ продавца клиенту
+            int bytesSent = send(client_sock, seller_buffer, seller_bytesReceived, 0);
+            if (bytesSent < 0) {
+                perror("Error sending message to client");
+            } else {
+                std::cout << "Sent message to client: " << seller_buffer << std::endl;
+            }
+
+            // После вызова send()
+            pthread_mutex_unlock(&socket_mutexes[client_sock]);
+        }
+    }
+    return NULL;
 }
 
 void finish(int signum) {
@@ -65,6 +134,15 @@ void finish(int signum) {
         close(departments[i]);
     }
     close(server_fd);
+    for (int i = 0; i < NUM_DEPARTMENTS; ++i) {
+        pthread_cancel(threads[i]);
+    }
+    for (int i = 0; i < client_threads.size(); ++i) {
+        pthread_cancel(client_threads[i]);
+    }
+    for (auto &pair: socket_mutexes) {
+        pthread_mutex_destroy(&pair.second);
+    }
     exit(0);
 
 }
@@ -74,7 +152,8 @@ int main(int argc, char *argv[]) {
         std::cerr << "Usage: " << argv[0] << " <IP> <PORT>" << std::endl;
         return 1;
     }
-
+    // Инициализация семафора
+    semctl(sem_id, 0, SETVAL, 1);
     signal(SIGINT, finish);
     struct sockaddr_in address;
     address.sin_family = AF_INET;
@@ -122,27 +201,47 @@ int main(int argc, char *argv[]) {
     }
     int customer_num = -1;
 
+    for (int i = 0; i < NUM_DEPARTMENTS; ++i) {
+        int *arg = new int;
+        if (arg == NULL) {
+            fprintf(stderr, "Couldn't allocate memory for thread arg.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        *arg = i;
+        int ret = pthread_create(&threads[i], NULL, answer_to_client, arg);
+
+        if (ret != 0) {
+            std::cerr << "Error: pthread_create() failed\n";
+            exit(EXIT_FAILURE);
+        }
+    }
     // Обработка подключения новых клиентов
     while (true) {
         struct sockaddr_in client_address;
         socklen_t client_address_len = sizeof(client_address);
         int new_socket = accept(server_fd, (struct sockaddr *) &client_address, &client_address_len);
         customer_num++;
+        std::cout << new_socket << std::endl;
         if (new_socket < 0) {
             std::cout << "Accept failed" << std::endl;
             break;
         } else {
             std::cout << "Accepted new connection" << std::endl;
-            pid_t pid = fork();
-            if (pid < 0) {
-                std::cerr << "Fork failed" << std::endl;
+            pthread_t thread;
+            int *arg = new int[2];
+            if (arg == NULL) {
+                fprintf(stderr, "Couldn't allocate memory for thread arg.\n");
+                exit(EXIT_FAILURE);
+            }
+
+            arg[0] = new_socket;
+            arg[1] = customer_num;
+            int ret = pthread_create(&thread, NULL, handle_client, arg);
+
+            if (ret != 0) {
+                std::cerr << "Error: pthread_create() failed\n";
                 break;
-            } else if (pid == 0) {
-                // Это код дочернего процесса
-
-                handle_client(new_socket, customer_num);
-
-                exit(0);
             }
         }
     }

@@ -4,8 +4,11 @@ IP=$1
 PORT=$2
 NUM_CUSTOMERS=$3
 
+echo "Running shop on $IP:$PORT"
 ./shop $IP $PORT > /dev/null 2>&1 &
 SHOP_PID=$!
+
+echo "Running 3 sellers"
 sleep 2
 
 # Перехватываем SIGINT и передаем его серверу

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <arpa/inet.h>
+#include <sstream>
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -42,15 +43,22 @@ int main(int argc, char *argv[]) {
             break;
         } else {
             buffer[bytesReceived] = '\0'; // Добавляем нулевой символ в конец строки
-            int request = std::stoi(buffer);
+            std::string str(buffer);
+            std::istringstream iss(str);
+            std::string line;
+            std::getline(iss, line);
+            int request = std::stoi(line);
+            std::getline(iss, line);
+            int cust_sock = std::stoi(line);
             std::cout << "Serving customer: " << request << std::endl;
 
             // Обработка запроса
             std::cout << "Processing ..." << std::endl;
             sleep(3); // Имитация обработки запроса
             // Отправка сообщения о завершении обработки на сервер
-            std::string doneMessage = "Done processing request";
-            send(sock, doneMessage.c_str(), doneMessage.size(), 0);
+            char buffer[1024] = {0};
+            sprintf(buffer, "%d\n%d", request, cust_sock);
+            send(sock, buffer, strlen(buffer), 0);
             std::cout << "Finished serving customer: " << request << std::endl;
         }
     }
